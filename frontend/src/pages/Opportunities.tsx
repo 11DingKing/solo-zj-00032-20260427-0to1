@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Table,
   Button,
@@ -15,7 +15,7 @@ import {
   Card,
   Row,
   Col,
-} from 'antd';
+} from "antd";
 import {
   PlusOutlined,
   FilterOutlined,
@@ -23,9 +23,9 @@ import {
   EditOutlined,
   DeleteOutlined,
   EyeOutlined,
-} from '@ant-design/icons';
-import type { ColumnsType } from 'antd/es/table';
-import dayjs from 'dayjs';
+} from "@ant-design/icons";
+import type { ColumnsType } from "antd/es/table";
+import dayjs from "dayjs";
 import {
   BarChart,
   Bar,
@@ -35,21 +35,21 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-} from 'recharts';
-import api from '../utils/axios';
-import { Opportunity, Customer, OpportunityStage, User } from '../types';
-import { useAuthStore } from '../store';
+} from "recharts";
+import api from "../utils/axios";
+import { Opportunity, Customer, OpportunityStage, User } from "../types";
+import { useAuthStore } from "../store";
 
 const { Option } = Select;
 const { TextArea } = Input;
 
 const stageOptions = [
-  { value: 'initial_contact', label: '初步接触', color: 'blue' },
-  { value: 'requirement_confirmation', label: '需求确认', color: 'cyan' },
-  { value: 'proposal_quote', label: '方案报价', color: 'purple' },
-  { value: 'negotiation', label: '商务谈判', color: 'orange' },
-  { value: 'won', label: '赢单', color: 'success' },
-  { value: 'lost', label: '输单', color: 'error' },
+  { value: "initial_contact", label: "初步接触", color: "blue" },
+  { value: "requirement_confirmation", label: "需求确认", color: "cyan" },
+  { value: "proposal_quote", label: "方案报价", color: "purple" },
+  { value: "negotiation", label: "商务谈判", color: "orange" },
+  { value: "won", label: "赢单", color: "success" },
+  { value: "lost", label: "输单", color: "error" },
 ];
 
 const Opportunities: React.FC = () => {
@@ -63,15 +63,16 @@ const Opportunities: React.FC = () => {
   const [pageSize, setPageSize] = useState(20);
   const [createVisible, setCreateVisible] = useState(false);
   const [editVisible, setEditVisible] = useState(false);
-  const [selectedOpportunity, setSelectedOpportunity] = useState<Opportunity | null>(null);
+  const [selectedOpportunity, setSelectedOpportunity] =
+    useState<Opportunity | null>(null);
   const [form] = Form.useForm();
-  
+
   const [filters, setFilters] = useState({
     stage: undefined as OpportunityStage | undefined,
     owner_id: undefined as number | undefined,
   });
 
-  const isAdmin = useAuthStore((state) => state.role) === 'admin';
+  const isAdmin = useAuthStore((state) => state.role) === "admin";
 
   useEffect(() => {
     fetchCustomers();
@@ -82,19 +83,21 @@ const Opportunities: React.FC = () => {
 
   const fetchCustomers = async () => {
     try {
-      const response = await api.get('/customers', { params: { page_size: 1000 } });
+      const response = await api.get("/customers", {
+        params: { page_size: 100 },
+      });
       setCustomers(response.data.items);
     } catch (error) {
-      console.error('Failed to fetch customers:', error);
+      console.error("Failed to fetch customers:", error);
     }
   };
 
   const fetchUsers = async () => {
     try {
-      const response = await api.get('/users');
+      const response = await api.get("/users");
       setUsers(response.data);
     } catch (error) {
-      console.error('Failed to fetch users:', error);
+      console.error("Failed to fetch users:", error);
     }
   };
 
@@ -105,15 +108,15 @@ const Opportunities: React.FC = () => {
         page,
         page_size: pageSize,
       };
-      
+
       if (filters.stage) params.stage = filters.stage;
       if (filters.owner_id) params.owner_id = filters.owner_id;
 
-      const response = await api.get('/opportunities', { params });
+      const response = await api.get("/opportunities", { params });
       setOpportunities(response.data.items);
       setTotal(response.data.total);
     } catch (error) {
-      console.error('Failed to fetch opportunities:', error);
+      console.error("Failed to fetch opportunities:", error);
     } finally {
       setLoading(false);
     }
@@ -121,14 +124,14 @@ const Opportunities: React.FC = () => {
 
   const fetchFunnel = async () => {
     try {
-      const response = await api.get('/opportunity-funnel');
+      const response = await api.get("/opportunity-funnel");
       const stageMap: Record<string, string> = {
-        'initial_contact': '初步接触',
-        'requirement_confirmation': '需求确认',
-        'proposal_quote': '方案报价',
-        'negotiation': '商务谈判',
-        'won': '赢单',
-        'lost': '输单',
+        initial_contact: "初步接触",
+        requirement_confirmation: "需求确认",
+        proposal_quote: "方案报价",
+        negotiation: "商务谈判",
+        won: "赢单",
+        lost: "输单",
       };
       const data = response.data.map((item: any) => ({
         ...item,
@@ -136,20 +139,20 @@ const Opportunities: React.FC = () => {
       }));
       setFunnelData(data);
     } catch (error) {
-      console.error('Failed to fetch funnel:', error);
+      console.error("Failed to fetch funnel:", error);
     }
   };
 
   const handleCreate = async (values: any) => {
     try {
-      await api.post('/opportunities', values);
-      message.success('商机创建成功');
+      await api.post("/opportunities", values);
+      message.success("商机创建成功");
       setCreateVisible(false);
       form.resetFields();
       fetchOpportunities();
       fetchFunnel();
     } catch (error) {
-      message.error('创建商机失败');
+      message.error("创建商机失败");
     }
   };
 
@@ -157,76 +160,74 @@ const Opportunities: React.FC = () => {
     if (!selectedOpportunity) return;
     try {
       await api.put(`/opportunities/${selectedOpportunity.id}`, values);
-      message.success('商机更新成功');
+      message.success("商机更新成功");
       setEditVisible(false);
       fetchOpportunities();
       fetchFunnel();
     } catch (error) {
-      message.error('更新商机失败');
+      message.error("更新商机失败");
     }
   };
 
   const handleDelete = async (id: number) => {
     try {
       await api.delete(`/opportunities/${id}`);
-      message.success('商机删除成功');
+      message.success("商机删除成功");
       fetchOpportunities();
       fetchFunnel();
     } catch (error) {
-      message.error('删除商机失败');
+      message.error("删除商机失败");
     }
   };
 
   const getStageTag = (stage: OpportunityStage) => {
-    const option = stageOptions.find(o => o.value === stage);
-    return option ? (
-      <Tag color={option.color}>{option.label}</Tag>
-    ) : stage;
+    const option = stageOptions.find((o) => o.value === stage);
+    return option ? <Tag color={option.color}>{option.label}</Tag> : stage;
   };
 
   const columns: ColumnsType<Opportunity> = [
     {
-      title: '商机名称',
-      dataIndex: 'name',
-      key: 'name',
+      title: "商机名称",
+      dataIndex: "name",
+      key: "name",
     },
     {
-      title: '客户',
-      dataIndex: 'customer_name',
-      key: 'customer_name',
+      title: "客户",
+      dataIndex: "customer_name",
+      key: "customer_name",
     },
     {
-      title: '预计金额',
-      dataIndex: 'expected_amount',
-      key: 'expected_amount',
-      render: (value) => value ? `¥${value.toLocaleString()}` : '-',
+      title: "预计金额",
+      dataIndex: "expected_amount",
+      key: "expected_amount",
+      render: (value) => (value ? `¥${value.toLocaleString()}` : "-"),
     },
     {
-      title: '预计成交日期',
-      dataIndex: 'expected_close_date',
-      key: 'expected_close_date',
-      render: (text) => text || '-',
+      title: "预计成交日期",
+      dataIndex: "expected_close_date",
+      key: "expected_close_date",
+      render: (text) => text || "-",
     },
     {
-      title: '阶段',
-      dataIndex: 'stage',
-      key: 'stage',
+      title: "阶段",
+      dataIndex: "stage",
+      key: "stage",
       render: (stage) => getStageTag(stage),
     },
     {
-      title: '负责人',
-      dataIndex: 'owner_name',
-      key: 'owner_name',
+      title: "负责人",
+      dataIndex: "owner_name",
+      key: "owner_name",
     },
     {
-      title: '创建时间',
-      dataIndex: 'created_at',
-      key: 'created_at',
-      render: (text) => text ? dayjs(text).format('YYYY-MM-DD HH:mm') : '-',
+      title: "创建时间",
+      dataIndex: "created_at",
+      key: "created_at",
+      render: (text) => (text ? dayjs(text).format("YYYY-MM-DD HH:mm") : "-"),
     },
     {
-      title: '操作',
-      key: 'actions',
+      title: "操作",
+      key: "actions",
       width: 150,
       render: (_, record) => (
         <Space size="small">
@@ -237,7 +238,9 @@ const Opportunities: React.FC = () => {
               setSelectedOpportunity(record);
               form.setFieldsValue({
                 ...record,
-                expected_close_date: record.expected_close_date ? dayjs(record.expected_close_date) : undefined,
+                expected_close_date: record.expected_close_date
+                  ? dayjs(record.expected_close_date)
+                  : undefined,
               });
               setEditVisible(true);
             }}
@@ -262,24 +265,26 @@ const Opportunities: React.FC = () => {
       <Form.Item
         name="name"
         label="商机名称"
-        rules={[{ required: true, message: '请输入商机名称' }]}
+        rules={[{ required: true, message: "请输入商机名称" }]}
       >
         <Input />
       </Form.Item>
       <Form.Item
         name="customer_id"
         label="客户"
-        rules={[{ required: true, message: '请选择客户' }]}
+        rules={[{ required: true, message: "请选择客户" }]}
       >
         <Select placeholder="请选择客户">
-          {customers.map(c => (
-            <Option key={c.id} value={c.id}>{c.company_name}</Option>
+          {customers.map((c) => (
+            <Option key={c.id} value={c.id}>
+              {c.company_name}
+            </Option>
           ))}
         </Select>
       </Form.Item>
       <Form.Item name="expected_amount" label="预计金额">
         <InputNumber
-          style={{ width: '100%' }}
+          style={{ width: "100%" }}
           min={0}
           precision={2}
           prefix="¥"
@@ -287,19 +292,26 @@ const Opportunities: React.FC = () => {
         />
       </Form.Item>
       <Form.Item name="expected_close_date" label="预计成交日期">
-        <DatePicker style={{ width: '100%' }} placeholder="请选择预计成交日期" />
+        <DatePicker
+          style={{ width: "100%" }}
+          placeholder="请选择预计成交日期"
+        />
       </Form.Item>
       <Form.Item name="stage" label="阶段">
         <Select placeholder="请选择阶段">
-          {stageOptions.map(o => (
-            <Option key={o.value} value={o.value}>{o.label}</Option>
+          {stageOptions.map((o) => (
+            <Option key={o.value} value={o.value}>
+              {o.label}
+            </Option>
           ))}
         </Select>
       </Form.Item>
       <Form.Item name="owner_id" label="负责人">
         <Select placeholder="请选择负责人" allowClear>
-          {users.map(u => (
-            <Option key={u.id} value={u.id}>{u.name}</Option>
+          {users.map((u) => (
+            <Option key={u.id} value={u.id}>
+              {u.name}
+            </Option>
           ))}
         </Select>
       </Form.Item>
@@ -311,9 +323,19 @@ const Opportunities: React.FC = () => {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          marginBottom: 16,
+        }}
+      >
         <h2 style={{ margin: 0 }}>商机管理</h2>
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateVisible(true)}>
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={() => setCreateVisible(true)}
+        >
           新建商机
         </Button>
       </div>
@@ -341,8 +363,10 @@ const Opportunities: React.FC = () => {
             value={filters.stage}
             onChange={(v) => setFilters({ ...filters, stage: v })}
           >
-            {stageOptions.map(o => (
-              <Option key={o.value} value={o.value}>{o.label}</Option>
+            {stageOptions.map((o) => (
+              <Option key={o.value} value={o.value}>
+                {o.label}
+              </Option>
             ))}
           </Select>
           <Select
@@ -352,17 +376,22 @@ const Opportunities: React.FC = () => {
             value={filters.owner_id}
             onChange={(v) => setFilters({ ...filters, owner_id: v })}
           >
-            {users.map(u => (
-              <Option key={u.id} value={u.id}>{u.name}</Option>
+            {users.map((u) => (
+              <Option key={u.id} value={u.id}>
+                {u.name}
+              </Option>
             ))}
           </Select>
           <Button icon={<FilterOutlined />} onClick={fetchOpportunities}>
             筛选
           </Button>
-          <Button icon={<SyncOutlined />} onClick={() => {
-            setFilters({ stage: undefined, owner_id: undefined });
-            fetchFunnel();
-          }}>
+          <Button
+            icon={<SyncOutlined />}
+            onClick={() => {
+              setFilters({ stage: undefined, owner_id: undefined });
+              fetchFunnel();
+            }}
+          >
             重置
           </Button>
         </Space>
@@ -398,7 +427,7 @@ const Opportunities: React.FC = () => {
           form={form}
           layout="vertical"
           onFinish={handleCreate}
-          initialValues={{ stage: 'initial_contact' }}
+          initialValues={{ stage: "initial_contact" }}
         >
           {formItems}
           <Form.Item>
@@ -416,11 +445,7 @@ const Opportunities: React.FC = () => {
         footer={null}
         width={600}
       >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleEdit}
-        >
+        <Form form={form} layout="vertical" onFinish={handleEdit}>
           {formItems}
           <Form.Item>
             <Button type="primary" htmlType="submit" block>

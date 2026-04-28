@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import {
   Table,
   Button,
@@ -8,7 +8,6 @@ import {
   Space,
   Modal,
   Form,
-  InputNumber,
   Tag,
   message,
   Popconfirm,
@@ -17,7 +16,7 @@ import {
   Timeline,
   Card,
   List,
-} from 'antd';
+} from "antd";
 import {
   PlusOutlined,
   FilterOutlined,
@@ -25,32 +24,37 @@ import {
   EditOutlined,
   DeleteOutlined,
   EyeOutlined,
-} from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
-import type { ColumnsType } from 'antd/es/table';
-import dayjs, { Dayjs } from 'dayjs';
-import api from '../utils/axios';
-import { Customer, Contact, CustomerStatus, CustomerStatusLog, User } from '../types';
-import { useAuthStore } from '../store';
+} from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
+import type { ColumnsType } from "antd/es/table";
+import dayjs, { Dayjs } from "dayjs";
+import api from "../utils/axios";
+import {
+  Customer,
+  Contact,
+  CustomerStatus,
+  CustomerStatusLog,
+  User,
+} from "../types";
+import { useAuthStore } from "../store";
 
 const { RangePicker } = DatePicker;
 const { Option } = Select;
-const { TabPane } = Tabs;
 const { TextArea } = Input;
 
 const statusOptions = [
-  { value: 'potential', label: '潜在客户', color: 'blue' },
-  { value: 'interested', label: '意向客户', color: 'green' },
-  { value: 'opportunity', label: '商机客户', color: 'orange' },
-  { value: 'closed', label: '成交客户', color: 'success' },
-  { value: 'lost', label: '流失客户', color: 'error' },
+  { value: "potential", label: "潜在客户", color: "blue" },
+  { value: "interested", label: "意向客户", color: "green" },
+  { value: "opportunity", label: "商机客户", color: "orange" },
+  { value: "closed", label: "成交客户", color: "success" },
+  { value: "lost", label: "流失客户", color: "error" },
 ];
 
 const methodLabels: Record<string, string> = {
-  phone: '电话',
-  visit: '拜访',
-  wechat: '微信',
-  email: '邮件',
+  phone: "电话",
+  visit: "拜访",
+  wechat: "微信",
+  email: "邮件",
 };
 
 interface CustomersProps {
@@ -64,7 +68,9 @@ const Customers: React.FC<CustomersProps> = ({ customerId }) => {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(20);
-  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(
+    null,
+  );
   const [detailVisible, setDetailVisible] = useState(false);
   const [createVisible, setCreateVisible] = useState(false);
   const [editVisible, setEditVisible] = useState(false);
@@ -73,7 +79,7 @@ const Customers: React.FC<CustomersProps> = ({ customerId }) => {
   const [statusLogs, setStatusLogs] = useState<CustomerStatusLog[]>([]);
   const [form] = Form.useForm();
   const [contactForm] = Form.useForm();
-  
+
   const [filters, setFilters] = useState({
     industry: undefined as string | undefined,
     scale: undefined as string | undefined,
@@ -81,11 +87,11 @@ const Customers: React.FC<CustomersProps> = ({ customerId }) => {
     owner_id: undefined as number | undefined,
     created_at_start: undefined as Dayjs | undefined,
     created_at_end: undefined as Dayjs | undefined,
-    sort_by: 'created_at',
-    sort_order: 'desc',
+    sort_by: "created_at",
+    sort_order: "desc",
   });
 
-  const isAdmin = useAuthStore((state) => state.role) === 'admin';
+  const isAdmin = useAuthStore((state) => state.role) === "admin";
 
   useEffect(() => {
     fetchUsers();
@@ -100,10 +106,10 @@ const Customers: React.FC<CustomersProps> = ({ customerId }) => {
 
   const fetchUsers = async () => {
     try {
-      const response = await api.get('/users');
+      const response = await api.get("/users");
       setUsers(response.data);
     } catch (error) {
-      console.error('Failed to fetch users:', error);
+      console.error("Failed to fetch users:", error);
     }
   };
 
@@ -116,7 +122,7 @@ const Customers: React.FC<CustomersProps> = ({ customerId }) => {
         sort_by: filters.sort_by,
         sort_order: filters.sort_order,
       };
-      
+
       if (filters.industry) params.industry = filters.industry;
       if (filters.scale) params.scale = filters.scale;
       if (filters.status) params.status = filters.status;
@@ -128,11 +134,11 @@ const Customers: React.FC<CustomersProps> = ({ customerId }) => {
         params.created_at_end = filters.created_at_end.toISOString();
       }
 
-      const response = await api.get('/customers', { params });
+      const response = await api.get("/customers", { params });
       setCustomers(response.data.items);
       setTotal(response.data.total);
     } catch (error) {
-      console.error('Failed to fetch customers:', error);
+      console.error("Failed to fetch customers:", error);
     } finally {
       setLoading(false);
     }
@@ -143,11 +149,11 @@ const Customers: React.FC<CustomersProps> = ({ customerId }) => {
       const response = await api.get(`/customers/${id}`);
       setSelectedCustomer(response.data);
       setDetailVisible(true);
-      
+
       fetchContacts(id);
       fetchStatusLogs(id);
     } catch (error) {
-      console.error('Failed to fetch customer detail:', error);
+      console.error("Failed to fetch customer detail:", error);
     }
   };
 
@@ -156,7 +162,7 @@ const Customers: React.FC<CustomersProps> = ({ customerId }) => {
       const response = await api.get(`/customers/${customerId}/contacts`);
       setContacts(response.data);
     } catch (error) {
-      console.error('Failed to fetch contacts:', error);
+      console.error("Failed to fetch contacts:", error);
     }
   };
 
@@ -165,19 +171,19 @@ const Customers: React.FC<CustomersProps> = ({ customerId }) => {
       const response = await api.get(`/customers/${customerId}/status-logs`);
       setStatusLogs(response.data);
     } catch (error) {
-      console.error('Failed to fetch status logs:', error);
+      console.error("Failed to fetch status logs:", error);
     }
   };
 
   const handleCreate = async (values: any) => {
     try {
-      await api.post('/customers', values);
-      message.success('客户创建成功');
+      await api.post("/customers", values);
+      message.success("客户创建成功");
       setCreateVisible(false);
       form.resetFields();
       fetchCustomers();
     } catch (error) {
-      message.error('创建客户失败');
+      message.error("创建客户失败");
     }
   };
 
@@ -185,22 +191,22 @@ const Customers: React.FC<CustomersProps> = ({ customerId }) => {
     if (!selectedCustomer) return;
     try {
       await api.put(`/customers/${selectedCustomer.id}`, values);
-      message.success('客户更新成功');
+      message.success("客户更新成功");
       setEditVisible(false);
       fetchCustomers();
       fetchCustomerDetail(selectedCustomer.id);
     } catch (error) {
-      message.error('更新客户失败');
+      message.error("更新客户失败");
     }
   };
 
   const handleDelete = async (id: number) => {
     try {
       await api.delete(`/customers/${id}`);
-      message.success('客户删除成功');
+      message.success("客户删除成功");
       fetchCustomers();
     } catch (error) {
-      message.error('删除客户失败');
+      message.error("删除客户失败");
     }
   };
 
@@ -208,60 +214,58 @@ const Customers: React.FC<CustomersProps> = ({ customerId }) => {
     if (!selectedCustomer) return;
     try {
       await api.post(`/customers/${selectedCustomer.id}/contacts`, values);
-      message.success('联系人添加成功');
+      message.success("联系人添加成功");
       contactForm.resetFields();
       fetchContacts(selectedCustomer.id);
     } catch (error) {
-      message.error('添加联系人失败');
+      message.error("添加联系人失败");
     }
   };
 
   const getStatusTag = (status: CustomerStatus) => {
-    const option = statusOptions.find(o => o.value === status);
-    return option ? (
-      <Tag color={option.color}>{option.label}</Tag>
-    ) : status;
+    const option = statusOptions.find((o) => o.value === status);
+    return option ? <Tag color={option.color}>{option.label}</Tag> : status;
   };
 
   const columns: ColumnsType<Customer> = [
     {
-      title: '公司名称',
-      dataIndex: 'company_name',
-      key: 'company_name',
+      title: "公司名称",
+      dataIndex: "company_name",
+      key: "company_name",
       render: (text, record) => (
         <a onClick={() => fetchCustomerDetail(record.id)}>{text}</a>
       ),
     },
     {
-      title: '行业',
-      dataIndex: 'industry',
-      key: 'industry',
+      title: "行业",
+      dataIndex: "industry",
+      key: "industry",
     },
     {
-      title: '规模',
-      dataIndex: 'scale',
-      key: 'scale',
+      title: "规模",
+      dataIndex: "scale",
+      key: "scale",
     },
     {
-      title: '状态',
-      dataIndex: 'status',
-      key: 'status',
+      title: "状态",
+      dataIndex: "status",
+      key: "status",
       render: (status) => getStatusTag(status),
     },
     {
-      title: '负责人',
-      dataIndex: 'owner_name',
-      key: 'owner_name',
+      title: "负责人",
+      dataIndex: "owner_name",
+      key: "owner_name",
     },
     {
-      title: '创建时间',
-      dataIndex: 'created_at',
-      key: 'created_at',
-      render: (text) => text ? dayjs(text).format('YYYY-MM-DD HH:mm') : '-',
+      title: "创建时间",
+      dataIndex: "created_at",
+      key: "created_at",
+      render: (text) => (text ? dayjs(text).format("YYYY-MM-DD HH:mm") : "-"),
     },
     {
-      title: '操作',
-      key: 'actions',
+      title: "操作",
+      key: "actions",
       width: 150,
       render: (_, record) => (
         <Space size="small">
@@ -275,7 +279,16 @@ const Customers: React.FC<CustomersProps> = ({ customerId }) => {
             icon={<EditOutlined />}
             onClick={() => {
               setSelectedCustomer(record);
-              form.setFieldsValue(record);
+              form.setFieldsValue({
+                company_name: record.company_name,
+                industry: record.industry || undefined,
+                scale: record.scale || undefined,
+                address: record.address || undefined,
+                website: record.website || undefined,
+                remark: record.remark || undefined,
+                status: record.status,
+                owner_id: record.owner_id || undefined,
+              });
               setEditVisible(true);
             }}
           />
@@ -299,7 +312,7 @@ const Customers: React.FC<CustomersProps> = ({ customerId }) => {
       <Form.Item
         name="company_name"
         label="公司名称"
-        rules={[{ required: true, message: '请输入公司名称' }]}
+        rules={[{ required: true, message: "请输入公司名称" }]}
       >
         <Input />
       </Form.Item>
@@ -334,26 +347,215 @@ const Customers: React.FC<CustomersProps> = ({ customerId }) => {
       </Form.Item>
       <Form.Item name="status" label="状态">
         <Select placeholder="请选择状态">
-          {statusOptions.map(o => (
-            <Option key={o.value} value={o.value}>{o.label}</Option>
+          {statusOptions.map((o) => (
+            <Option key={o.value} value={o.value}>
+              {o.label}
+            </Option>
           ))}
         </Select>
       </Form.Item>
       <Form.Item name="owner_id" label="负责人">
         <Select placeholder="请选择负责人" allowClear>
-          {users.map(u => (
-            <Option key={u.id} value={u.id}>{u.name}</Option>
+          {users.map((u) => (
+            <Option key={u.id} value={u.id}>
+              {u.name}
+            </Option>
           ))}
         </Select>
       </Form.Item>
     </>
   );
 
+  const getDetailTabItems = () => {
+    if (!selectedCustomer) return [];
+
+    return [
+      {
+        key: "info",
+        label: "基本信息",
+        children: (
+          <Descriptions bordered column={2}>
+            <Descriptions.Item label="公司名称">
+              {selectedCustomer.company_name}
+            </Descriptions.Item>
+            <Descriptions.Item label="状态">
+              {getStatusTag(selectedCustomer.status)}
+            </Descriptions.Item>
+            <Descriptions.Item label="行业">
+              {selectedCustomer.industry || "-"}
+            </Descriptions.Item>
+            <Descriptions.Item label="规模">
+              {selectedCustomer.scale || "-"}
+            </Descriptions.Item>
+            <Descriptions.Item label="地址">
+              {selectedCustomer.address || "-"}
+            </Descriptions.Item>
+            <Descriptions.Item label="官网">
+              {selectedCustomer.website || "-"}
+            </Descriptions.Item>
+            <Descriptions.Item label="负责人">
+              {selectedCustomer.owner_name || "-"}
+            </Descriptions.Item>
+            <Descriptions.Item label="创建时间">
+              {selectedCustomer.created_at
+                ? dayjs(selectedCustomer.created_at).format("YYYY-MM-DD HH:mm")
+                : "-"}
+            </Descriptions.Item>
+            <Descriptions.Item label="备注" span={2}>
+              {selectedCustomer.remark || "-"}
+            </Descriptions.Item>
+          </Descriptions>
+        ),
+      },
+      {
+        key: "contacts",
+        label: "联系人",
+        children: (
+          <>
+            <div style={{ marginBottom: 16 }}>
+              <Button
+                type="primary"
+                size="small"
+                icon={<PlusOutlined />}
+                onClick={() => contactForm.resetFields()}
+              >
+                添加联系人
+              </Button>
+            </div>
+
+            <Form
+              form={contactForm}
+              layout="vertical"
+              onFinish={handleAddContact}
+              style={{ marginBottom: 24 }}
+            >
+              <Card
+                size="small"
+                title="新建联系人"
+                style={{ marginBottom: 16 }}
+              >
+                <Space wrap>
+                  <Form.Item
+                    name="name"
+                    label="姓名"
+                    rules={[{ required: true }]}
+                    style={{ marginBottom: 0, width: 150 }}
+                  >
+                    <Input size="small" />
+                  </Form.Item>
+                  <Form.Item
+                    name="position"
+                    label="职位"
+                    style={{ marginBottom: 0, width: 150 }}
+                  >
+                    <Input size="small" />
+                  </Form.Item>
+                  <Form.Item
+                    name="phone"
+                    label="电话"
+                    style={{ marginBottom: 0, width: 150 }}
+                  >
+                    <Input size="small" />
+                  </Form.Item>
+                  <Form.Item
+                    name="email"
+                    label="邮箱"
+                    style={{ marginBottom: 0, width: 150 }}
+                  >
+                    <Input size="small" />
+                  </Form.Item>
+                  <Form.Item
+                    name="wechat"
+                    label="微信"
+                    style={{ marginBottom: 0, width: 150 }}
+                  >
+                    <Input size="small" />
+                  </Form.Item>
+                  <Form.Item style={{ marginBottom: 0 }}>
+                    <Button type="primary" size="small" htmlType="submit">
+                      添加
+                    </Button>
+                  </Form.Item>
+                </Space>
+              </Card>
+            </Form>
+
+            <List
+              dataSource={contacts}
+              renderItem={(contact) => (
+                <List.Item>
+                  <List.Item.Meta
+                    title={
+                      <Space>
+                        <span style={{ fontWeight: "bold" }}>
+                          {contact.name}
+                        </span>
+                        {contact.is_primary === "true" && (
+                          <Tag color="blue">主要</Tag>
+                        )}
+                      </Space>
+                    }
+                    description={
+                      <Space wrap>
+                        {contact.position && (
+                          <span>职位: {contact.position}</span>
+                        )}
+                        {contact.phone && <span>电话: {contact.phone}</span>}
+                        {contact.email && <span>邮箱: {contact.email}</span>}
+                        {contact.wechat && <span>微信: {contact.wechat}</span>}
+                      </Space>
+                    }
+                  />
+                </List.Item>
+              )}
+            />
+          </>
+        ),
+      },
+      {
+        key: "logs",
+        label: "状态变更记录",
+        children: (
+          <Timeline>
+            {statusLogs.map((log) => (
+              <Timeline.Item key={log.id}>
+                <p>
+                  状态变更:{" "}
+                  {statusOptions.find((o) => o.value === log.old_status)?.label}{" "}
+                  →{" "}
+                  {statusOptions.find((o) => o.value === log.new_status)?.label}
+                </p>
+                <p>操作人: {log.user_name || "-"}</p>
+                <p>
+                  时间:{" "}
+                  {log.created_at
+                    ? dayjs(log.created_at).format("YYYY-MM-DD HH:mm")
+                    : "-"}
+                </p>
+                {log.remark && <p>备注: {log.remark}</p>}
+              </Timeline.Item>
+            ))}
+          </Timeline>
+        ),
+      },
+    ];
+  };
+
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          marginBottom: 16,
+        }}
+      >
         <h2 style={{ margin: 0 }}>客户管理</h2>
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => setCreateVisible(true)}>
+        <Button
+          type="primary"
+          icon={<PlusOutlined />}
+          onClick={() => setCreateVisible(true)}
+        >
           新建客户
         </Button>
       </div>
@@ -367,8 +569,10 @@ const Customers: React.FC<CustomersProps> = ({ customerId }) => {
             value={filters.status}
             onChange={(v) => setFilters({ ...filters, status: v })}
           >
-            {statusOptions.map(o => (
-              <Option key={o.value} value={o.value}>{o.label}</Option>
+            {statusOptions.map((o) => (
+              <Option key={o.value} value={o.value}>
+                {o.label}
+              </Option>
             ))}
           </Select>
           <Select
@@ -391,17 +595,27 @@ const Customers: React.FC<CustomersProps> = ({ customerId }) => {
             value={filters.owner_id}
             onChange={(v) => setFilters({ ...filters, owner_id: v })}
           >
-            {users.map(u => (
-              <Option key={u.id} value={u.id}>{u.name}</Option>
+            {users.map((u) => (
+              <Option key={u.id} value={u.id}>
+                {u.name}
+              </Option>
             ))}
           </Select>
           <RangePicker
-            placeholder={['创建开始', '创建结束']}
+            placeholder={["创建开始", "创建结束"]}
             onChange={(dates) => {
               if (dates) {
-                setFilters({ ...filters, created_at_start: dates[0] ?? undefined, created_at_end: dates[1] ?? undefined });
+                setFilters({
+                  ...filters,
+                  created_at_start: dates[0] ?? undefined,
+                  created_at_end: dates[1] ?? undefined,
+                });
               } else {
-                setFilters({ ...filters, created_at_start: undefined, created_at_end: undefined });
+                setFilters({
+                  ...filters,
+                  created_at_start: undefined,
+                  created_at_end: undefined,
+                });
               }
             }}
           />
@@ -444,7 +658,7 @@ const Customers: React.FC<CustomersProps> = ({ customerId }) => {
           form={form}
           layout="vertical"
           onFinish={handleCreate}
-          initialValues={{ status: 'potential' }}
+          initialValues={{ status: "potential" }}
         >
           {customerFormItems}
           <Form.Item>
@@ -462,11 +676,7 @@ const Customers: React.FC<CustomersProps> = ({ customerId }) => {
         footer={null}
         width={600}
       >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleEdit}
-        >
+        <Form form={form} layout="vertical" onFinish={handleEdit}>
           {customerFormItems}
           <Form.Item>
             <Button type="primary" htmlType="submit" block>
@@ -484,104 +694,7 @@ const Customers: React.FC<CustomersProps> = ({ customerId }) => {
         width={900}
       >
         {selectedCustomer && (
-          <Tabs defaultActiveKey="info">
-            <TabPane tab="基本信息" key="info">
-              <Descriptions bordered column={2}>
-                <Descriptions.Item label="公司名称">{selectedCustomer.company_name}</Descriptions.Item>
-                <Descriptions.Item label="状态">{getStatusTag(selectedCustomer.status)}</Descriptions.Item>
-                <Descriptions.Item label="行业">{selectedCustomer.industry || '-'}</Descriptions.Item>
-                <Descriptions.Item label="规模">{selectedCustomer.scale || '-'}</Descriptions.Item>
-                <Descriptions.Item label="地址">{selectedCustomer.address || '-'}</Descriptions.Item>
-                <Descriptions.Item label="官网">{selectedCustomer.website || '-'}</Descriptions.Item>
-                <Descriptions.Item label="负责人">{selectedCustomer.owner_name || '-'}</Descriptions.Item>
-                <Descriptions.Item label="创建时间">
-                  {selectedCustomer.created_at ? dayjs(selectedCustomer.created_at).format('YYYY-MM-DD HH:mm') : '-'}
-                </Descriptions.Item>
-                <Descriptions.Item label="备注" span={2}>
-                  {selectedCustomer.remark || '-'}
-                </Descriptions.Item>
-              </Descriptions>
-            </TabPane>
-
-            <TabPane tab="联系人" key="contacts">
-              <div style={{ marginBottom: 16 }}>
-                <Button
-                  type="primary"
-                  size="small"
-                  icon={<PlusOutlined />}
-                  onClick={() => contactForm.resetFields()}
-                >
-                  添加联系人
-                </Button>
-              </div>
-              
-              <Form form={contactForm} layout="vertical" onFinish={handleAddContact} style={{ marginBottom: 24 }}>
-                <Card size="small" title="新建联系人" style={{ marginBottom: 16 }}>
-                  <Space wrap>
-                    <Form.Item name="name" label="姓名" rules={[{ required: true }]} style={{ marginBottom: 0, width: 150 }}>
-                      <Input size="small" />
-                    </Form.Item>
-                    <Form.Item name="position" label="职位" style={{ marginBottom: 0, width: 150 }}>
-                      <Input size="small" />
-                    </Form.Item>
-                    <Form.Item name="phone" label="电话" style={{ marginBottom: 0, width: 150 }}>
-                      <Input size="small" />
-                    </Form.Item>
-                    <Form.Item name="email" label="邮箱" style={{ marginBottom: 0, width: 150 }}>
-                      <Input size="small" />
-                    </Form.Item>
-                    <Form.Item name="wechat" label="微信" style={{ marginBottom: 0, width: 150 }}>
-                      <Input size="small" />
-                    </Form.Item>
-                    <Form.Item style={{ marginBottom: 0 }}>
-                      <Button type="primary" size="small" htmlType="submit">
-                        添加
-                      </Button>
-                    </Form.Item>
-                  </Space>
-                </Card>
-              </Form>
-
-              <List
-                dataSource={contacts}
-                renderItem={(contact) => (
-                  <List.Item>
-                    <List.Item.Meta
-                      title={
-                        <Space>
-                          <span style={{ fontWeight: 'bold' }}>{contact.name}</span>
-                          {contact.is_primary === 'true' && <Tag color="blue">主要</Tag>}
-                        </Space>
-                      }
-                      description={
-                        <Space wrap>
-                          {contact.position && <span>职位: {contact.position}</span>}
-                          {contact.phone && <span>电话: {contact.phone}</span>}
-                          {contact.email && <span>邮箱: {contact.email}</span>}
-                          {contact.wechat && <span>微信: {contact.wechat}</span>}
-                        </Space>
-                      }
-                    />
-                  </List.Item>
-                )}
-              />
-            </TabPane>
-
-            <TabPane tab="状态变更记录" key="logs">
-              <Timeline>
-                {statusLogs.map((log, index) => (
-                  <Timeline.Item key={log.id}>
-                    <p>
-                      状态变更: {statusOptions.find(o => o.value === log.old_status)?.label} → {statusOptions.find(o => o.value === log.new_status)?.label}
-                    </p>
-                    <p>操作人: {log.user_name || '-'}</p>
-                    <p>时间: {log.created_at ? dayjs(log.created_at).format('YYYY-MM-DD HH:mm') : '-'}</p>
-                    {log.remark && <p>备注: {log.remark}</p>}
-                  </Timeline.Item>
-                ))}
-              </Timeline>
-            </TabPane>
-          </Tabs>
+          <Tabs defaultActiveKey="info" items={getDetailTabItems()} />
         )}
       </Modal>
     </div>

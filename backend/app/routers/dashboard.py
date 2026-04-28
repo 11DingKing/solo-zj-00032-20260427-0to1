@@ -35,7 +35,7 @@ async def set_cached_stats(tenant_id: int, stats: Dict[str, Any]):
     
     await redis_client.setex(cache_key, CACHE_TTL, json.dumps(stats, default=str))
 
-async def get_user_map(tenant_id: int) -> dict:
+def get_user_map(tenant_id: int) -> dict:
     with get_public_schema_session() as db:
         users = db.execute(select(User).where(User.tenant_id == tenant_id)).scalars().all()
         return {u.id: u.name for u in users}
@@ -46,7 +46,7 @@ async def get_dashboard_stats(
     user_data: tuple = Depends(get_current_user)
 ):
     user, tenant = user_data
-    user_map = await get_user_map(tenant.id)
+    user_map = get_user_map(tenant.id)
     
     if not refresh:
         cached = await get_cached_stats(tenant.id)

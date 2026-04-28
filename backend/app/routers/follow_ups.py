@@ -14,7 +14,7 @@ from ..database import get_public_schema_session
 
 router = APIRouter(prefix="/api", tags=["follow_ups"])
 
-async def get_user_map(tenant_id: int) -> dict:
+def get_user_map(tenant_id: int) -> dict:
     with get_public_schema_session() as db:
         users = db.execute(select(User).where(User.tenant_id == tenant_id)).scalars().all()
         return {u.id: u.name for u in users}
@@ -25,7 +25,7 @@ async def create_follow_up(
     user_data: tuple = Depends(get_current_user)
 ):
     user, tenant = user_data
-    user_map = await get_user_map(tenant.id)
+    user_map = get_user_map(tenant.id)
     
     async with TenantSession(tenant.schema_name) as session:
         customer_result = await session.execute(
@@ -64,7 +64,7 @@ async def list_follow_ups(
     user_data: tuple = Depends(get_current_user)
 ):
     user, tenant = user_data
-    user_map = await get_user_map(tenant.id)
+    user_map = get_user_map(tenant.id)
     
     async with TenantSession(tenant.schema_name) as session:
         query = select(FollowUpRecord)
@@ -144,7 +144,7 @@ async def get_follow_up(
     user_data: tuple = Depends(get_current_user)
 ):
     user, tenant = user_data
-    user_map = await get_user_map(tenant.id)
+    user_map = get_user_map(tenant.id)
     
     async with TenantSession(tenant.schema_name) as session:
         result = await session.execute(
@@ -192,7 +192,7 @@ async def get_customer_follow_ups(
     user_data: tuple = Depends(get_current_user)
 ):
     user, tenant = user_data
-    user_map = await get_user_map(tenant.id)
+    user_map = get_user_map(tenant.id)
     
     async with TenantSession(tenant.schema_name) as session:
         customer_result = await session.execute(

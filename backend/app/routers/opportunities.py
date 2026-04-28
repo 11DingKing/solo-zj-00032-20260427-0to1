@@ -13,7 +13,7 @@ from ..database import get_public_schema_session
 
 router = APIRouter(prefix="/api", tags=["opportunities"])
 
-async def get_user_map(tenant_id: int) -> dict:
+def get_user_map(tenant_id: int) -> dict:
     with get_public_schema_session() as db:
         users = db.execute(select(User).where(User.tenant_id == tenant_id)).scalars().all()
         return {u.id: u.name for u in users}
@@ -24,7 +24,7 @@ async def create_opportunity(
     user_data: tuple = Depends(get_current_user)
 ):
     user, tenant = user_data
-    user_map = await get_user_map(tenant.id)
+    user_map = get_user_map(tenant.id)
     
     async with TenantSession(tenant.schema_name) as session:
         customer_result = await session.execute(
@@ -61,20 +61,20 @@ async def list_opportunities(
     page_size: int = Query(20, ge=1, le=100),
     sort_by: Optional[str] = Query("created_at"),
     sort_order: Optional[str] = Query("desc"),
-    stage: Optional[List[str]] = Query(None),
-    owner_id: Optional[List[int]] = Query(None),
+    stage: Optional[str] = Query(None),
+    owner_id: Optional[int] = Query(None),
     user_data: tuple = Depends(get_current_user)
 ):
     user, tenant = user_data
-    user_map = await get_user_map(tenant.id)
+    user_map = get_user_map(tenant.id)
     
     async with TenantSession(tenant.schema_name) as session:
         query = select(Opportunity)
         
         if stage:
-            query = query.where(Opportunity.stage.in_(stage))
+            query = query.where(Opportunity.stage == stage)
         if owner_id:
-            query = query.where(Opportunity.owner_id.in_(owner_id))
+            query = query.where(Opportunity.owner_id == owner_id)
         
         count_query = select(func.count()).select_from(query.subquery())
         total_result = await session.execute(count_query)
@@ -117,7 +117,7 @@ async def get_opportunity(
     user_data: tuple = Depends(get_current_user)
 ):
     user, tenant = user_data
-    user_map = await get_user_map(tenant.id)
+    user_map = get_user_map(tenant.id)
     
     async with TenantSession(tenant.schema_name) as session:
         result = await session.execute(
@@ -146,7 +146,7 @@ async def update_opportunity(
     user_data: tuple = Depends(get_current_user)
 ):
     user, tenant = user_data
-    user_map = await get_user_map(tenant.id)
+    user_map = get_user_map(tenant.id)
     
     async with TenantSession(tenant.schema_name) as session:
         result = await session.execute(

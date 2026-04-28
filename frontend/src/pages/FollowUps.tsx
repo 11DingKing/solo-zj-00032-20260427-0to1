@@ -63,7 +63,7 @@ const FollowUps: React.FC = () => {
 
   const fetchCustomers = async () => {
     try {
-      const response = await api.get('/customers', { params: { page_size: 1000 } });
+      const response = await api.get('/customers', { params: { page_size: 100 } });
       setCustomers(response.data.items);
     } catch (error) {
       console.error('Failed to fetch customers:', error);

@@ -3,6 +3,7 @@ from sqlalchemy import select, func, or_, and_
 from sqlalchemy.orm import selectinload
 from typing import Optional, List
 from datetime import datetime
+import logging
 from ..database import TenantSession
 from ..models import (
     Customer, Contact, CustomerStatusLog, CustomerStatus, User, OpportunityStage
@@ -15,9 +16,11 @@ from ..schemas import (
 from ..auth import get_current_user, get_current_active_admin
 from ..database import get_public_schema_session
 
+logger = logging.getLogger(__name__)
+
 router = APIRouter(prefix="/api", tags=["customers"])
 
-async def get_user_map(tenant_id: int) -> dict:
+def get_user_map(tenant_id: int) -> dict:
     with get_public_schema_session() as db:
         users = db.execute(select(User).where(User.tenant_id == tenant_id)).scalars().all()
         return {u.id: u.name for u in users}
@@ -28,7 +31,7 @@ async def create_customer(
     user_data: tuple = Depends(get_current_user)
 ):
     user, tenant = user_data
-    user_map = await get_user_map(tenant.id)
+    user_map = get_user_map(tenant.id)
     
     async with TenantSession(tenant.schema_name) as session:
         customer = Customer(
@@ -75,28 +78,28 @@ async def list_customers(
     page_size: int = Query(20, ge=1, le=100),
     sort_by: Optional[str] = Query("created_at"),
     sort_order: Optional[str] = Query("desc"),
-    industry: Optional[List[str]] = Query(None),
-    scale: Optional[List[str]] = Query(None),
-    status: Optional[List[str]] = Query(None),
-    owner_id: Optional[List[int]] = Query(None),
+    industry: Optional[str] = Query(None),
+    scale: Optional[str] = Query(None),
+    status: Optional[str] = Query(None),
+    owner_id: Optional[int] = Query(None),
     created_at_start: Optional[datetime] = Query(None),
     created_at_end: Optional[datetime] = Query(None),
     user_data: tuple = Depends(get_current_user)
 ):
     user, tenant = user_data
-    user_map = await get_user_map(tenant.id)
+    user_map = get_user_map(tenant.id)
     
     async with TenantSession(tenant.schema_name) as session:
         query = select(Customer).options(selectinload(Customer.contacts))
         
         if industry:
-            query = query.where(Customer.industry.in_(industry))
+            query = query.where(Customer.industry == industry)
         if scale:
-            query = query.where(Customer.scale.in_(scale))
+            query = query.where(Customer.scale == scale)
         if status:
-            query = query.where(Customer.status.in_(status))
+            query = query.where(Customer.status == status)
         if owner_id:
-            query = query.where(Customer.owner_id.in_(owner_id))
+            query = query.where(Customer.owner_id == owner_id)
         if created_at_start:
             query = query.where(Customer.created_at >= created_at_start)
         if created_at_end:
@@ -132,7 +135,7 @@ async def get_customer(
     user_data: tuple = Depends(get_current_user)
 ):
     user, tenant = user_data
-    user_map = await get_user_map(tenant.id)
+    user_map = get_user_map(tenant.id)
     
     async with TenantSession(tenant.schema_name) as session:
         result = await session.execute(
@@ -157,7 +160,7 @@ async def update_customer(
     user_data: tuple = Depends(get_current_user)
 ):
     user, tenant = user_data
-    user_map = await get_user_map(tenant.id)
+    user_map = get_user_map(tenant.id)
     
     async with TenantSession(tenant.schema_name) as session:
         result = await session.execute(
@@ -170,7 +173,7 @@ async def update_customer(
         
         update_data = customer_data.model_dump(exclude_unset=True)
         
-        if "status" in update_data and update_data["status"] != customer.status:
+        if "status" in update_data and update_data["status"] is not None and update_data["status"] != customer.status:
             status_log = CustomerStatusLog(
                 customer_id=customer_id,
                 user_id=user.id,
@@ -327,7 +330,7 @@ async def get_customer_status_logs(
     user_data: tuple = Depends(get_current_user)
 ):
     user, tenant = user_data
-    user_map = await get_user_map(tenant.id)
+    user_map = get_user_map(tenant.id)
     
     async with TenantSession(tenant.schema_name) as session:
         result = await session.execute(
