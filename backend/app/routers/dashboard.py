@@ -68,7 +68,7 @@ async def get_dashboard_stats(
         ).where(
             and_(
                 Opportunity.created_at >= start_of_month,
-                Opportunity.stage == OpportunityStage.WON
+                Opportunity.stage == OpportunityStage.WON.value
             )
         )
         monthly_opps_result = await session.execute(monthly_opportunities_query)
@@ -79,7 +79,7 @@ async def get_dashboard_stats(
             func.count(Opportunity.id).label('won_count'),
             func.coalesce(func.sum(Opportunity.expected_amount), 0).label('won_amount')
         ).where(
-            Opportunity.stage == OpportunityStage.WON
+            Opportunity.stage == OpportunityStage.WON.value
         ).group_by(
             Opportunity.owner_id
         ).order_by(
@@ -142,7 +142,7 @@ async def get_dashboard_stats(
         opportunity_funnel = []
         for row in funnel_rows:
             opportunity_funnel.append({
-                'stage': row.stage.value,
+                'stage': row.stage,
                 'count': row.count,
                 'amount': float(row.amount) if row.amount else 0
             })
@@ -159,7 +159,7 @@ async def get_dashboard_stats(
                 func.coalesce(func.sum(Opportunity.expected_amount), 0)
             ).where(
                 and_(
-                    Opportunity.stage == OpportunityStage.WON,
+                    Opportunity.stage == OpportunityStage.WON.value,
                     extract('year', Opportunity.created_at) == year,
                     extract('month', Opportunity.created_at) == month
                 )

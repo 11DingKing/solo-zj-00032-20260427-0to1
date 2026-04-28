@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Numeric, Enum, Date
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Numeric, Date
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import enum
@@ -47,7 +47,7 @@ class User(Base):
     email = Column(String(255), unique=True, nullable=False)
     password_hash = Column(String(255), nullable=False)
     name = Column(String(100), nullable=False)
-    role = Column(Enum(UserRole), default=UserRole.SALES, nullable=False)
+    role = Column(String(50), default=UserRole.SALES.value, nullable=False)
     is_active = Column(String(10), default="true")
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
@@ -62,7 +62,7 @@ class Customer(Base):
     address = Column(String(500))
     website = Column(String(255))
     remark = Column(Text)
-    status = Column(Enum(CustomerStatus), default=CustomerStatus.POTENTIAL)
+    status = Column(String(50), default=CustomerStatus.POTENTIAL.value)
     owner_id = Column(Integer, ForeignKey("users.id"))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
@@ -96,7 +96,7 @@ class Opportunity(Base):
     name = Column(String(255), nullable=False)
     expected_amount = Column(Numeric(12, 2))
     expected_close_date = Column(Date)
-    stage = Column(Enum(OpportunityStage), default=OpportunityStage.INITIAL_CONTACT)
+    stage = Column(String(50), default=OpportunityStage.INITIAL_CONTACT.value)
     owner_id = Column(Integer, ForeignKey("users.id"))
     competitor_info = Column(Text)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -110,7 +110,7 @@ class FollowUpRecord(Base):
     id = Column(Integer, primary_key=True, index=True)
     customer_id = Column(Integer, ForeignKey("customers.id"), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    method = Column(Enum(FollowUpMethod), nullable=False)
+    method = Column(String(50), nullable=False)
     content = Column(Text, nullable=False)
     next_follow_up_time = Column(DateTime(timezone=True))
     created_at = Column(DateTime(timezone=True), server_default=func.now())
@@ -123,8 +123,8 @@ class CustomerStatusLog(Base):
     id = Column(Integer, primary_key=True, index=True)
     customer_id = Column(Integer, ForeignKey("customers.id"), nullable=False)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    old_status = Column(Enum(CustomerStatus), nullable=False)
-    new_status = Column(Enum(CustomerStatus), nullable=False)
+    old_status = Column(String(50), nullable=False)
+    new_status = Column(String(50), nullable=False)
     remark = Column(Text)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     

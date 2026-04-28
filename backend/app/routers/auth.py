@@ -59,7 +59,7 @@ async def register_tenant(tenant_data: TenantCreate):
             email=tenant_data.admin_email,
             password_hash=get_password_hash(tenant_data.admin_password),
             name=tenant_data.admin_name,
-            role=UserRole.ADMIN,
+            role=UserRole.ADMIN.value,
             is_active="true"
         )
         db.add(admin_user)

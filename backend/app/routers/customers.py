@@ -38,7 +38,7 @@ async def create_customer(
             address=customer_data.address,
             website=customer_data.website,
             remark=customer_data.remark,
-            status=CustomerStatus.POTENTIAL,
+            status=CustomerStatus.POTENTIAL.value,
             owner_id=user.id
         )
         

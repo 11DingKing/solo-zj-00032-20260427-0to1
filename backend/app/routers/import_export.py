@@ -101,7 +101,7 @@ async def import_customers(
                     address=normalized_row.get('address'),
                     website=normalized_row.get('website'),
                     remark=normalized_row.get('remark'),
-                    status=CustomerStatus.POTENTIAL,
+                    status=CustomerStatus.POTENTIAL.value,
                     owner_id=user.id
                 )
                 
@@ -168,11 +168,11 @@ async def export_customers(
         ])
         
         status_display = {
-            CustomerStatus.POTENTIAL: '潜在客户',
-            CustomerStatus.INTERESTED: '意向客户',
-            CustomerStatus.OPPORTUNITY: '商机客户',
-            CustomerStatus.CLOSED: '成交客户',
-            CustomerStatus.LOST: '流失客户'
+            'potential': '潜在客户',
+            'interested': '意向客户',
+            'opportunity': '商机客户',
+            'closed': '成交客户',
+            'lost': '流失客户'
         }
         
         for customer in customers:
@@ -190,7 +190,7 @@ async def export_customers(
                 customer.address or '',
                 customer.website or '',
                 customer.remark or '',
-                status_display.get(customer.status, customer.status.value) if customer.status else '',
+                status_display.get(customer.status, customer.status) if customer.status else '',
                 user_map.get(customer.owner_id, '') or '',
                 primary_contact.name if primary_contact else '',
                 primary_contact.position if primary_contact else '',
@@ -244,12 +244,12 @@ async def export_opportunities(
         ])
         
         stage_display = {
-            OpportunityStage.INITIAL_CONTACT: '初步接触',
-            OpportunityStage.REQUIREMENT_CONFIRMATION: '需求确认',
-            OpportunityStage.PROPOSAL_QUOTE: '方案报价',
-            OpportunityStage.NEGOTIATION: '商务谈判',
-            OpportunityStage.WON: '赢单',
-            OpportunityStage.LOST: '输单'
+            'initial_contact': '初步接触',
+            'requirement_confirmation': '需求确认',
+            'proposal_quote': '方案报价',
+            'negotiation': '商务谈判',
+            'won': '赢单',
+            'lost': '输单'
         }
         
         for opp in opportunities:
@@ -258,7 +258,7 @@ async def export_opportunities(
                 customer_map.get(opp.customer_id, '') or '',
                 float(opp.expected_amount) if opp.expected_amount else '',
                 opp.expected_close_date.strftime('%Y-%m-%d') if opp.expected_close_date else '',
-                stage_display.get(opp.stage, opp.stage.value) if opp.stage else '',
+                stage_display.get(opp.stage, opp.stage) if opp.stage else '',
                 user_map.get(opp.owner_id, '') or '',
                 opp.competitor_info or '',
                 opp.created_at.strftime('%Y-%m-%d %H:%M:%S') if opp.created_at else ''

@@ -40,7 +40,7 @@ async def create_opportunity(
             customer_id=opportunity_data.customer_id,
             expected_amount=opportunity_data.expected_amount,
             expected_close_date=opportunity_data.expected_close_date,
-            stage=OpportunityStage.INITIAL_CONTACT,
+            stage=OpportunityStage.INITIAL_CONTACT.value,
             owner_id=user.id,
             competitor_info=opportunity_data.competitor_info
         )
@@ -203,22 +203,13 @@ async def get_opportunity_funnel(
     user, tenant = user_data
     
     async with TenantSession(tenant.schema_name) as session:
-        stages = [
-            OpportunityStage.INITIAL_CONTACT,
-            OpportunityStage.REQUIREMENT_CONFIRMATION,
-            OpportunityStage.PROPOSAL_QUOTE,
-            OpportunityStage.NEGOTIATION,
-            OpportunityStage.WON,
-            OpportunityStage.LOST
-        ]
-        
         stage_order = {
-            OpportunityStage.INITIAL_CONTACT: 1,
-            OpportunityStage.REQUIREMENT_CONFIRMATION: 2,
-            OpportunityStage.PROPOSAL_QUOTE: 3,
-            OpportunityStage.NEGOTIATION: 4,
-            OpportunityStage.WON: 5,
-            OpportunityStage.LOST: 6
+            'initial_contact': 1,
+            'requirement_confirmation': 2,
+            'proposal_quote': 3,
+            'negotiation': 4,
+            'won': 5,
+            'lost': 6
         }
         
         query = select(
@@ -233,7 +224,7 @@ async def get_opportunity_funnel(
         funnel_data = []
         for row in rows:
             funnel_data.append({
-                'stage': row.stage.value,
+                'stage': row.stage,
                 'count': row.count,
                 'amount': float(row.amount) if row.amount else 0
             })
