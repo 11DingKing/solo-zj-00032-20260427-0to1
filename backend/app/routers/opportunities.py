@@ -61,7 +61,7 @@ async def list_opportunities(
     page_size: int = Query(20, ge=1, le=100),
     sort_by: Optional[str] = Query("created_at"),
     sort_order: Optional[str] = Query("desc"),
-    stage: Optional[List[OpportunityStage]] = Query(None),
+    stage: Optional[List[str]] = Query(None),
     owner_id: Optional[List[int]] = Query(None),
     user_data: tuple = Depends(get_current_user)
 ):

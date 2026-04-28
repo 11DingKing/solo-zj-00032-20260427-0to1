@@ -77,7 +77,7 @@ async def list_customers(
     sort_order: Optional[str] = Query("desc"),
     industry: Optional[List[str]] = Query(None),
     scale: Optional[List[str]] = Query(None),
-    status: Optional[List[CustomerStatus]] = Query(None),
+    status: Optional[List[str]] = Query(None),
     owner_id: Optional[List[int]] = Query(None),
     created_at_start: Optional[datetime] = Query(None),
     created_at_end: Optional[datetime] = Query(None),
@@ -217,6 +217,21 @@ async def delete_customer(
         await session.commit()
         
         return {"message": "Customer deleted successfully"}
+
+@router.get("/customers/{customer_id}/contacts", response_model=List[ContactResponse])
+async def get_customer_contacts(
+    customer_id: int,
+    user_data: tuple = Depends(get_current_user)
+):
+    user, tenant = user_data
+    
+    async with TenantSession(tenant.schema_name) as session:
+        result = await session.execute(
+            select(Contact).where(Contact.customer_id == customer_id)
+        )
+        contacts = result.scalars().all()
+        
+        return contacts
 
 @router.post("/customers/{customer_id}/contacts", response_model=ContactResponse)
 async def add_contact(

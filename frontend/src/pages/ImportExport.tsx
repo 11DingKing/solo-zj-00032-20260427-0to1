@@ -21,7 +21,32 @@ import api from '../utils/axios';
 import { ImportResult } from '../types';
 
 const { TabPane } = Tabs;
-const { Text, Link } = Typography;
+const { Text } = Typography;
+
+const downloadFile = async (url: string, filename: string) => {
+  try {
+    const response = await api.get(url, {
+      responseType: 'blob',
+    });
+    
+    const blob = new Blob([response.data], { 
+      type: 'text/csv;charset=utf-8;' 
+    });
+    const link = document.createElement('a');
+    const href = URL.createObjectURL(blob);
+    link.href = href;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(href);
+    
+    message.success('下载成功');
+  } catch (error) {
+    console.error('Download failed:', error);
+    message.error('下载失败，请重试');
+  }
+};
 
 const ImportExport: React.FC = () => {
   const [importing, setImporting] = useState(false);
@@ -29,15 +54,15 @@ const ImportExport: React.FC = () => {
   const [uploadProgress, setUploadProgress] = useState(0);
 
   const downloadTemplate = () => {
-    window.open('/api/import/template', '_blank');
+    downloadFile('/import/template', '客户导入模板.csv');
   };
 
   const exportCustomers = () => {
-    window.open('/api/export/customers', '_blank');
+    downloadFile('/export/customers', `客户数据_${new Date().toISOString().slice(0, 10)}.csv`);
   };
 
   const exportOpportunities = () => {
-    window.open('/api/export/opportunities', '_blank');
+    downloadFile('/export/opportunities', `商机数据_${new Date().toISOString().slice(0, 10)}.csv`);
   };
 
   const uploadProps: UploadProps = {

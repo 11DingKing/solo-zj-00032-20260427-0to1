@@ -2,7 +2,6 @@ from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, List, Dict, Any
 from datetime import datetime, date
 from decimal import Decimal
-from .models import UserRole, CustomerStatus, OpportunityStage, FollowUpMethod
 
 class Token(BaseModel):
     access_token: str
@@ -10,7 +9,7 @@ class Token(BaseModel):
     user_id: int
     email: str
     name: str
-    role: UserRole
+    role: str
     tenant_id: int
     schema_name: str
     company_name: str
@@ -23,7 +22,7 @@ class TokenData(BaseModel):
 class UserBase(BaseModel):
     email: EmailStr
     name: str
-    role: UserRole = UserRole.SALES
+    role: str = "sales"
 
 class UserCreate(UserBase):
     password: str
@@ -31,7 +30,7 @@ class UserCreate(UserBase):
 class UserUpdate(BaseModel):
     email: Optional[EmailStr] = None
     name: Optional[str] = None
-    role: Optional[UserRole] = None
+    role: Optional[str] = None
     is_active: Optional[str] = None
 
 class UserResponse(UserBase):
@@ -104,12 +103,12 @@ class CustomerUpdate(BaseModel):
     address: Optional[str] = None
     website: Optional[str] = None
     remark: Optional[str] = None
-    status: Optional[CustomerStatus] = None
+    status: Optional[str] = None
     owner_id: Optional[int] = None
 
 class CustomerResponse(CustomerBase):
     id: int
-    status: CustomerStatus
+    status: str
     owner_id: Optional[int] = None
     owner_name: Optional[str] = None
     created_at: Optional[datetime] = None
@@ -124,8 +123,8 @@ class CustomerListResponse(BaseModel):
     items: List[CustomerResponse]
 
 class CustomerStatusLogBase(BaseModel):
-    old_status: CustomerStatus
-    new_status: CustomerStatus
+    old_status: str
+    new_status: str
     remark: Optional[str] = None
 
 class CustomerStatusLogResponse(CustomerStatusLogBase):
@@ -152,13 +151,13 @@ class OpportunityUpdate(BaseModel):
     name: Optional[str] = None
     expected_amount: Optional[Decimal] = None
     expected_close_date: Optional[date] = None
-    stage: Optional[OpportunityStage] = None
+    stage: Optional[str] = None
     owner_id: Optional[int] = None
     competitor_info: Optional[str] = None
 
 class OpportunityResponse(OpportunityBase):
     id: int
-    stage: OpportunityStage
+    stage: str
     owner_id: Optional[int] = None
     owner_name: Optional[str] = None
     customer_name: Optional[str] = None
@@ -173,7 +172,7 @@ class OpportunityListResponse(BaseModel):
     items: List[OpportunityResponse]
 
 class FollowUpRecordBase(BaseModel):
-    method: FollowUpMethod
+    method: str
     content: str
     next_follow_up_time: Optional[datetime] = None
 
@@ -211,7 +210,7 @@ class ImportResult(BaseModel):
 class AdvancedFilter(BaseModel):
     industry: Optional[List[str]] = None
     scale: Optional[List[str]] = None
-    status: Optional[List[CustomerStatus]] = None
+    status: Optional[List[str]] = None
     owner_id: Optional[List[int]] = None
     created_at_start: Optional[datetime] = None
     created_at_end: Optional[datetime] = None

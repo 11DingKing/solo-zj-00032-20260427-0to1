@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {
   Layout as AntLayout,
   Menu,
@@ -7,6 +7,9 @@ import {
   Dropdown,
   Avatar,
   notification,
+  Typography,
+  List,
+  Tag,
 } from "antd";
 import {
   MenuFoldOutlined,
@@ -16,18 +19,18 @@ import {
   AppstoreOutlined,
   HistoryOutlined,
   ImportOutlined,
-  ExportOutlined,
   BellOutlined,
   UserOutlined,
   LogoutOutlined,
-  SettingOutlined,
 } from "@ant-design/icons";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore, useAppStore } from "../store";
 import api from "../utils/axios";
 import { PendingFollowUp } from "../types";
+import dayjs from "dayjs";
 
 const { Header, Sider, Content } = AntLayout;
+const { Text } = Typography;
 
 const menuItems = [
   {
@@ -131,19 +134,65 @@ const Layout: React.FC<Props> = ({ children }) => {
       disabled: true,
     },
     {
-      key: 'company',
+      key: "company",
       icon: <TeamOutlined />,
       label: user.company_name,
       disabled: true,
     },
-    { type: 'divider' as const },
+    { type: "divider" as const },
     {
-      key: 'logout',
+      key: "logout",
       icon: <LogoutOutlined />,
-      label: '退出登录',
+      label: "退出登录",
       onClick: handleLogout,
     },
   ];
+
+  const getPendingMenuItems = () => {
+    if (pendingFollowUps.length === 0) {
+      return [
+        {
+          key: "empty",
+          label: <Text type="secondary">暂无待处理的跟进</Text>,
+        },
+      ];
+    }
+
+    return [
+      ...pendingFollowUps.slice(0, 5).map((item, index) => ({
+        key: `item-${index}`,
+        label: (
+          <div style={{ maxWidth: 320 }}>
+            <div style={{ fontWeight: "bold", marginBottom: 4 }}>
+              {item.customer_name}
+            </div>
+            <div style={{ fontSize: 12, color: "#666", marginBottom: 4 }}>
+              <Tag color="orange">
+                {dayjs(item.next_follow_up_time).format("YYYY-MM-DD HH:mm")}
+              </Tag>
+            </div>
+            <div
+              style={{
+                fontSize: 12,
+                color: "#999",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {item.content}
+            </div>
+          </div>
+        ),
+      })),
+      { type: "divider" as const },
+      {
+        key: "view-all",
+        label: "查看全部跟进记录",
+        onClick: () => navigate("/follow-ups"),
+      },
+    ];
+  };
 
   const selectedKey = location.pathname.startsWith("/customers/")
     ? "/customers"
@@ -182,14 +231,20 @@ const Layout: React.FC<Props> = ({ children }) => {
             />
 
             <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-              <Badge count={pendingFollowUps.length}>
-                <Button
-                  type="text"
-                  icon={<BellOutlined style={{ fontSize: 18 }} />}
-                >
-                  提醒
-                </Button>
-              </Badge>
+              <Dropdown
+                menu={{ items: getPendingMenuItems() }}
+                placement="bottomRight"
+                trigger={["click"]}
+              >
+                <Badge count={pendingFollowUps.length}>
+                  <Button
+                    type="text"
+                    icon={<BellOutlined style={{ fontSize: 18 }} />}
+                  >
+                    提醒
+                  </Button>
+                </Badge>
+              </Dropdown>
 
               <Dropdown menu={{ items: userMenuItems }} placement="bottomRight">
                 <div
