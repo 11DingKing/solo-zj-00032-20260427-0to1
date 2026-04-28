@@ -146,7 +146,7 @@ const Dashboard: React.FC = () => {
             <Statistic
               title="活跃商机数"
               value={stats?.opportunity_funnel.filter(f => !['won', 'lost'].includes(f.stage)).reduce((sum, f) => sum + f.count, 0) || 0}
-              prefix={<AppstoreOutlined as any />}
+              prefix={<AppstoreOutlined />}
               valueStyle={{ color: '#fa8c16' }}
             />
           </Card>
