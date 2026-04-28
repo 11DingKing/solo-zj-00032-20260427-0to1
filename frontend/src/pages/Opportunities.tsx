@@ -122,16 +122,17 @@ const Opportunities: React.FC = () => {
   const fetchFunnel = async () => {
     try {
       const response = await api.get('/opportunity-funnel');
+      const stageMap: Record<string, string> = {
+        'initial_contact': '初步接触',
+        'requirement_confirmation': '需求确认',
+        'proposal_quote': '方案报价',
+        'negotiation': '商务谈判',
+        'won': '赢单',
+        'lost': '输单',
+      };
       const data = response.data.map((item: any) => ({
         ...item,
-        stage: {
-          'initial_contact': '初步接触',
-          'requirement_confirmation': '需求确认',
-          'proposal_quote': '方案报价',
-          'negotiation': '商务谈判',
-          'won': '赢单',
-          'lost': '输单',
-        }[item.stage] || item.stage,
+        stage: stageMap[item.stage] || item.stage,
       }));
       setFunnelData(data);
     } catch (error) {

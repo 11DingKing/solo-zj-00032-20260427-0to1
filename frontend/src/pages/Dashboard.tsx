@@ -5,6 +5,7 @@ import {
   DollarOutlined,
   SyncOutlined,
   RiseOutlined,
+  AppstoreOutlined,
 } from '@ant-design/icons';
 import {
   PieChart,

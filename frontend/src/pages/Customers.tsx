@@ -399,7 +399,7 @@ const Customers: React.FC<CustomersProps> = ({ customerId }) => {
             placeholder={['创建开始', '创建结束']}
             onChange={(dates) => {
               if (dates) {
-                setFilters({ ...filters, created_at_start: dates[0], created_at_end: dates[1] });
+                setFilters({ ...filters, created_at_start: dates[0] ?? undefined, created_at_end: dates[1] ?? undefined });
               } else {
                 setFilters({ ...filters, created_at_start: undefined, created_at_end: undefined });
               }
