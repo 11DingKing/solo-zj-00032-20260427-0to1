@@ -67,7 +67,14 @@ async def register_tenant(tenant_data: TenantCreate):
         
         await create_tenant_schema(schema_name)
         
-        return tenant
+        result = TenantResponse(
+            id=tenant.id,
+            company_name=tenant.company_name,
+            schema_name=tenant.schema_name,
+            created_at=tenant.created_at
+        )
+    
+    return result
 
 @router.post("/login", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
@@ -96,7 +103,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
         access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = create_access_token(
             data={
-                "sub": user.id,
+                "sub": str(user.id),
                 "tenant_id": user.tenant_id,
                 "schema_name": tenant.schema_name
             },

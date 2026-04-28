@@ -58,6 +58,12 @@ async def create_customer(
         await session.commit()
         await session.refresh(customer)
         
+        # Eager load contacts
+        result = await session.execute(
+            select(Customer).options(selectinload(Customer.contacts)).where(Customer.id == customer.id)
+        )
+        customer = result.scalar_one()
+        
         response = CustomerResponse.model_validate(customer)
         response.owner_name = user_map.get(customer.owner_id)
         
@@ -179,6 +185,12 @@ async def update_customer(
         
         await session.commit()
         await session.refresh(customer)
+        
+        # Eager load contacts
+        result = await session.execute(
+            select(Customer).options(selectinload(Customer.contacts)).where(Customer.id == customer_id)
+        )
+        customer = result.scalar_one()
         
         response = CustomerResponse.model_validate(customer)
         response.owner_name = user_map.get(customer.owner_id)

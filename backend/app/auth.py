@@ -37,7 +37,7 @@ async def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(s
     )
     try:
         payload = jwt.decode(credentials.credentials, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
-        user_id: int = payload.get("sub")
+        user_id: int = int(payload.get("sub"))
         tenant_id: int = payload.get("tenant_id")
         schema_name: str = payload.get("schema_name")
         
